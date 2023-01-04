@@ -200,9 +200,9 @@ Placing this kind of burden on our users is a no-go. Our apps should just work
 without the need for them know the intimate details of how our variant system
 behaves. So Local Storage is out. But Local Storage has a sibling called Session
 Storage with the same API that basically solves all the problems above. Session
-Storage behaves exactly like Local Storage except it is handled on a per-window
-(and per-tab) basis. When your tab is closed, all the Session Storage _for that
-tab_ is cleared.
+Storage behaves exactly like Local Storage except it is handled on a per-tab
+basis. When your tab is closed, all the Session Storage _for that tab_ is
+cleared.
 
 So on page load, we store the variant in Session Storage, drop the query
 parameter, load the app, and let the entire application remain blissfully
