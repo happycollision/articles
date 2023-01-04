@@ -1,0 +1,5 @@
+{
+  "rewrap.wrappingColumn": 72,
+  "eslint.enable": false,
+  "editor.rulers": [72, 80]
+}
