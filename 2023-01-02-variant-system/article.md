@@ -1,11 +1,11 @@
-# App Variants: Feature branch builds (and more) for your statically-generated SPA
+# App Variants: Feature branch builds (and more) for your statically generated SPA
 
 The split between front-end and back-end has been a double-edged sword ever
 since the first developer chiseled JSX onto the wall of the tribal networking
 cave. What had the curiosity of this ancient heretic wrought? Along with the
 numerous advantages of client-rendered websites came numerous new challenges. We
 started specializing to overcome these new challenges and explore this new way
-of building for the web. Today, it is fairly typical for teams to be comprised
+of building for the web. Today, it is typical for teams to be comprised
 not of full stack developers, but of front-end developers and back-end
 developers.
 
@@ -16,7 +16,7 @@ attempt to escape.
 
 One casualty of the front-end/back-end divide is the dedicated feature branch
 build. The place where your work-in-progress code can be deployed care-free as
-you build so that you and your teammates can see a fully-integrated version of
+you build so that you and your teammates can see a fully integrated version of
 your changes. But with teams, repositories, and deployments split along
 technological lines, it can be difficult and time-consuming to find a way to
 make feature branch builds work. And what if you serve your static front-end
@@ -42,7 +42,7 @@ The system allows you to dynamically load
 - **Feature branch builds:** Our original goal. Deploy work-in-progress builds
   of your app as you develop a new feature.
 - **Snapshots of previous versions of your application:** Perhaps you are
-  working on rapidly changing data structures and you'll need to support the
+  working on rapidly changing data structures, and you'll need to support the
   legacy versions of those structures for a time.
 - **Builds for different environments:** Do some of your users need to connect
   to a different API?
@@ -59,7 +59,7 @@ separated and preserved. Since this system is more than just "versions" or
 
 ## The architectural shift
 
-This entire article assumes you are working with a statically-generated,
+This entire article assumes you are working with a statically generated,
 SPA-like application. If you have more control over the server hosting your
 static front end assets, perhaps another solution is possible, though this one
 might still be better suited to your needs.
@@ -78,7 +78,7 @@ assets every time. Once the site renders, perhaps your application recognizes
 other assets that are required for your particular location and downloads those
 as well, but by then your app is already running.
 
-Every change to your application requires a brand new build of `index.html` to
+Every change to your application requires a brand-new build of `index.html` to
 reference multiple new CSS and JS files.
 
 ![Sequence diagram of a typical SPA page load https://play.d2lang.com/?script=rJKxTvMwEMd3P8W9wJeq3-gBiTJRdagwbEjI2EewlNjmzi1UKO-OHBOnIIEyMMW6-90v-edcf58EyunF7Sk6oztQ-0vYBW2db0HhywG9QQnvAkAljLAuZ4AxpwT-RB6s0y3pfuw9UnhlJAmbcigDSMdcU-PznIN_F7W7OmNzvaqct_jWPKe--z5akb0mRtDegnVswhHp3luM6C16c4K7mx0LgEFMWf7_ZRYTvDkQoU9A2cOJV4Qcg2fk6UVV16Q5dJMkXCk1fd_sL1CdKNST65B_l22XuLaLVNe9bnGBrXCzcPhxSZsQEugYO2d0vn9fNrLOaNmNGMRHAAAA__8%3D&sketch=0&theme=104](./img/typical.png)
@@ -100,7 +100,7 @@ https://example.com?variant=my_new_feature
 ```
 
 Instead of baking our application's static dependencies into the `index.html`
-file, we can encapsulate the knowledge of those assets into a single JSON file,
+file, we can encapsulate the knowledge of those assets into a single JSON file
 and give that file an arbitrary (variant) name. Since we are now pushing the
 knowledge of our assets into a file that must be loaded separately from the
 index file, we have the opportunity to run a tiny bit of JavaScript in the
@@ -119,7 +119,7 @@ If your files are all properly fingerprinted --the name of the file contains a
 hash that forces it to be unique based on its exact contents --then you can keep
 all your old assets on your server and let your variant JSON files load
 whichever assets are required. Since every single build of your app can live
-side by side with each other, you can load whichever variant you want as long as
+side by side with each other, you can load whichever variant you want if
 you know the name of a JSON file that points to the proper dependencies.
 
 ### Trade-offs
@@ -127,11 +127,11 @@ you know the name of a JSON file that points to the proper dependencies.
 There are some downsides to this approach.
 
 - Your users will be waiting for one more round trip to the file server before
-  you app begins to boot.
+  your app begins to boot.
 - There is a fair amount of customization you'll add to your Webpack config. (I
   won't be showing how to achieve this same result with other build tools,
   though it can be done.)
-- Typical turn-key static site hosts (Netlify, etc) will prune your old build
+- Typical turn-key static site hosts (Netlify, etc.) will prune your old build
   files each time you deploy, and that is completely antithetical to this
   approach.
 - The different variants of your app may start battling each other for
@@ -144,7 +144,7 @@ variant deployment, you can
 
 - make a feature available to a select few people for testing
 - quickly revert to a previous build if you discover a bug
-- solve CORS problems exactly one time; not for production _and_ feature
+- solve CORS problems exactly one time: not for production _and_ feature
   branches
 - load debugging tools directly into your bundle or load the non-production
   build against the production environment to track down a problem
@@ -241,7 +241,7 @@ We also are not going to tackle the actual deployment step in this article. At
 Trilliant Health, we use Azure Blob Storage (ABS) to serve our apps. Our final
 step in deployment is to upload all our files to ABS. Since our asset filenames
 contain a unique hash, we just let it upload and overwrite files with
-conflicting names. The end result is that our _new_ assets get uploaded with no
+conflicting names. The result is that our _new_ assets get uploaded with no
 conflict, _old_ assets are rewritten with the same content, and
 `{variantName}.json` files get updated to point to new build assets.
 
@@ -281,7 +281,7 @@ configuration.
 
 The code below will not work in your project unless you add loader rules to your
 Webpack config. Additionally, you may not have things set up to use TypeScript
-in your Webpack config, but the TypeScript in this code example is fairly
+in your Webpack config, but the TypeScript in this code example is
 limited and easily removed.
 
 ```ts
@@ -348,7 +348,7 @@ build
 
 You'll see that the CSS and images are the same, but the JavaScript files are
 different and we have a different variant JSON file named `mock.json`. If you
-upload these files to your server along side your previous uploaded files,
+upload these files to your server alongside your previous uploaded files,
 you'll get something like the following.
 
 ```

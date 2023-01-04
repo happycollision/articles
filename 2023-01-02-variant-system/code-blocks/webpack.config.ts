@@ -19,7 +19,7 @@ const dir = path.resolve(__dirname)
 /**
  * This function can be replaced with anything that loads a particular
  * config based on a variant name. In our codebase, we load some fairly
- * intricate configuration files written in javascript. For simplicity
+ * intricate configuration files written in JavaScript. For simplicity
  * though, I've hard-coded some values directly.
  *
  * The comments inside each variant help explain the imaginary state I
@@ -46,7 +46,7 @@ function getVariantConfig(variantName: string) {
     },
     {
       // In this imaginary scenario, the mock server handles everything,
-      // so we don't need to provide a real server url
+      // so we don't need to provide a real server URL
       name: "mock",
       buildConfig: {
         apiBaseUrl: "https://api-does-not-exist.example.com",
@@ -70,7 +70,7 @@ function getVariantConfig(variantName: string) {
       },
     },
     {
-      // This variant actually is fully integrated end-to-end, so we
+      // This variant is fully integrated end-to-end, so we
       // don't use the mock server. We can push this version up to the
       // server to let our teammates see how work is progressing and how
       // the actual new server endpoints are working.
@@ -128,7 +128,7 @@ export default async (webpackEnv: WebpackEnv) => {
     //
     plugins: [
       new MiniCssExtractPlugin({
-        // We want to fingerprint the css files, just like the JS files
+        // We want to fingerprint the CSS files, just like the JS files
         filename: "assets/css/[name].[contenthash].css",
       }),
 
@@ -145,13 +145,13 @@ export default async (webpackEnv: WebpackEnv) => {
         API_BASE_URL: JSON.stringify(variant.buildConfig.apiBaseUrl),
       }),
 
-      // Creates the variant dependencies json file:
+      // Creates the variant dependencies JSON file:
       // variants/{variantName}.json.
       //
       // The HtmlWebpackPlugin is really not meant for creating JSON
       // files, but it is situated perfectly in the build process for
       // this exact task. If you think about it, we are just replacing
-      // the use of HtmlWebpackPlugin as a way to inject our
+      // the use of `HtmlWebpackPlugin` as a way to inject our
       // dependencies into "index.html" with the exact same files
       // enumerated in a JSON file.
       new HtmlWebpackPlugin({
@@ -170,7 +170,7 @@ export default async (webpackEnv: WebpackEnv) => {
         // variant's settings will still be loaded, but you won't have
         // to include a variant in your query params just for local
         // development. (Remember, no variant is the same as loading the
-        // default variant. See the javascript in the index.html file)
+        // default variant. See the JavaScript in the index.html file)
         filename: `variants/${
           webpackEnv.WEBPACK_SERVE ? defaultVariantName : variant.name
         }.json`,
