@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Your title here</title>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script type="text/javascript">
+      // We use this IIFE to prevent global namespace pollution.
+      ;(function () {
+        var defaultVariantName = "public"
+
+        /**
+         * @returns {string | null}
+         */
+        function getStoredVariant() {
+          return window.sessionStorage.getItem("variant")
+        }
+
+        /**
+         * Changes the variant name in Session Storage. If we are
+         * changing to the default variant name, it removes the item
+         * from Session Storage entirely.
+         *
+         * @param {string} variantName
+         */
+        function updateStoredVariant(variantName) {
+          variantName === defaultVariantName
+            ? window.sessionStorage.removeItem("variant")
+            : window.sessionStorage.setItem("variant", variantName)
+        }
+
+        /**
+         * If the `variant` query param is available, this returns it.
+         *
+         * @returns {string | null}
+         */
+        function getRequestedVariantViaSearchParam() {
+          return new URLSearchParams(document.location.search).get(
+            "variant"
+          )
+        }
+
+        /**
+         * Returns the URL for the JSON file that houses all the variant
+         * assets.
+         *
+         * @param {string} variantName
+         */
+        function getUrlForVariant(variantName) {
+          // Date.now() ensures there is no browser caching. The named
+          // JSON file's contents can and will change often.
+          return "/variants/" + variantName + ".json?t=" + Date.now()
+        }
+
+        /**
+         * When the requested variant is missing, we render a message on
+         * screen to the user to let them know that the variant they
+         * requested does not exist and we render a link which will
+         * reset the variant to the default.
+         *
+         * @param {string} variantName
+         */
+        function updateViewExplainingMissingVariant(variantName) {
+          var root = document.querySelector("#root")
+          var p = document.createElement("p")
+          p.textContent =
+            "App failed to load the " + variantName + " variant."
+          var link = document.createElement("a")
+          link.href =
+            // Drop all query params and just use the default variant.
+            // (You could do this differently and try to preserve all
+            // other query params aside from "variant" if you prefer.)
+            document.location.href.replace(/\?.*/, "") +
+            "?variant=" +
+            defaultVariantName
+          link.textContent = "Reload the default version."
+          root.append(p)
+          root.append(link)
+        }
+
+        /**
+         * Appends all the variant's `<script>` and `<link>` elements to
+         * the DOM
+         *
+         * @param {{ css: string[], scripts: string[] }} data
+         */
+        function addAssetsToDom(data) {
+          data.scripts.forEach(function (src) {
+            var tag = document.createElement("script")
+            tag.src = src
+            tag.type = "text/javascript"
+            document.body.append(tag)
+          })
+          data.css.forEach(function (src) {
+            var tag = document.createElement("link")
+            tag.rel = "stylesheet"
+            tag.type = "text/css"
+            tag.href = src
+            document.head.append(tag)
+          })
+        }
+
+        // Definitions are done. Time for the action to begin. The
+        // variant query param overrides any stored variant. Then we
+        // check for a stored variant if that doesn't exist. Finally, we
+        // use the default if the other two functions return null.
+        var variantName =
+          getRequestedVariantViaSearchParam() ||
+          getStoredVariant() ||
+          defaultVariantName
+
+        updateStoredVariant(variantName)
+
+        window
+          .fetch(getUrlForVariant(variantName))
+          .then(function (resp) {
+            if (resp.status >= 300) {
+              updateViewExplainingMissingVariant(variantName)
+              throw new Error("Could not load requested variant.")
+            }
+            return resp.json()
+          })
+          .then(addAssetsToDom)
+      })()
+    </script>
+  </body>
+</html>
