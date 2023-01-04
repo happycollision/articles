@@ -160,33 +160,35 @@ an idea of how you might want to do this yourself. Before we dig into some real
 code, let's go over a few other ideas to layer on top of our current
 understanding of the variant system.
 
-### Problems with query params
+### Problems with query parameters
 
-You'll note that I've described variant loading as being driven by a query param
-called `variant`. But storing this kind of information in a query param has some
-drawbacks.
+You'll note that I've described variant loading as being driven by a query
+parameter called `variant`. But storing this kind of information in a query
+parameter has some drawbacks.
 
 - It kind of stinks that the whole application must be aware of this
-  constantly-present query param. Any individual pages that need to manipulate
-  the query params would need some defensive code to avoid dropping this param.
+  constantly-present query parameter. Any individual pages that need to
+  manipulate the query parameters would need some defensive code to avoid
+  dropping this parameter.
 - And what if one of our internal users shares a URL from their browser that
   happens to contain a variant name that is not supposed to be used widely?
 
-We should probably remove the query param from the page as soon as the app is
-loaded, since the only time we need the variant name is when we fetch our
+We should probably remove the query parameter from the page as soon as the app
+is loaded, since the only time we need the variant name is when we fetch our
 initial assets.
 
 But then, what if the user refreshes their browser? Well, the variant name is
 gone, and they'll load the default variant of the app. Plus, the web
 applications we build at Trilliant Health use Auth0 for authentication and so
 must redirect to and from Auth0. On the way back, we'd have to include the
-`variant` query param again, anyway.
+`variant` query parameter again, anyway.
 
 We could solve these problems with Local Storage. Once the index page loads and
 knows what variant to fetch, we can store the name of the variant in Local
 Storage. On subsequent reloads, we can check for that Local Storage value and
-use it if no `variant` exists in the query params. That solves our two problems
-above and also keeps things working for Auth0, but it creates two more problems:
+use it if no `variant` exists in the query parameters. That solves our two
+problems above and also keeps things working for Auth0, but it creates two more
+problems:
 
 - Users would not be able to load multiple variants of the app at once in
   multiple tabs unless they were very careful not to refresh the page.
@@ -202,9 +204,9 @@ Storage behaves exactly like Local Storage except it is handled on a per-window
 (and per-tab) basis. When your tab is closed, all the Session Storage _for that
 tab_ is cleared.
 
-So on page load, we store the variant in Session Storage, drop the query param,
-load the app, and let the entire application remain blissfully unaware of the
-entire variant system.
+So on page load, we store the variant in Session Storage, drop the query
+parameter, load the app, and let the entire application remain blissfully
+unaware of the entire variant system.
 
 ### Variant-level config
 
