@@ -23,7 +23,7 @@ make feature branch builds work. And what if you serve your static front-end
 assets via a simple, static file server?
 
 At the possible expense of becoming another front-end heretic, I'll tell you
-that you can trade one more round trip to the server for completely isolated
+that you can trade _one more round trip to the server_ for completely isolated
 front-end builds that are dynamically loaded without the need for special
 back-end logic.
 
@@ -115,8 +115,8 @@ dependencies.
 > CAPTION: The only change from the "typical SPA loading sequence" is the added
 > round trip in step 1.
 
-If your files are all properly fingerprinted - the name of the file contains a
-hash that forces it to be unique based on its exact contents - then you can keep
+If your files are all properly fingerprinted --the name of the file contains a
+hash that forces it to be unique based on its exact contents --then you can keep
 all your old assets on your server and let your variant JSON files load
 whichever assets are required. Since every single build of your app can live
 side by side with each other, you can load whichever variant you want as long as
@@ -142,7 +142,7 @@ there are plenty of situations where loading _any_ variant of your app via the
 same exact `index.html` at the same location can be immensely useful. Using
 variant deployment, you can
 
-- eature available to a select few people for testing
+- make a feature available to a select few people for testing
 - quickly revert to a previous build if you discover a bug
 - solve CORS problems exactly one time; not for production _and_ feature
   branches
@@ -199,8 +199,8 @@ without the need for them know the intimate details of how our variant system
 behaves. So Local Storage is out. But Local Storage has a sibling called Session
 Storage with the same API that basically solves all the problems above. Session
 Storage behaves exactly like Local Storage except it is handled on a per-window
-(and per-tab) basis. When your tab is closed, all the Session Storage for that
-tab is cleared.
+(and per-tab) basis. When your tab is closed, all the Session Storage _for that
+tab_ is cleared.
 
 So on page load, we store the variant in Session Storage, drop the query param,
 load the app, and let the entire application remain blissfully unaware of the
@@ -208,8 +208,8 @@ entire variant system.
 
 ### Variant-level config
 
-In order to take full advantage of the variant system - with builds that are
-always current but have useful variations in behavior - we will probably want to
+In order to take full advantage of the variant system -- with builds that are
+always current but have useful variations in behavior --we will probably want to
 store some configuration information inside the variants themselves. For
 example, the actual URL for your API server should probably be configured
 instead of discovered at runtime.
