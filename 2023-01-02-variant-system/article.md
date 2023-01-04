@@ -1,33 +1,38 @@
-# App Variants: Feature branch builds (and more) for your statically-generated front end
+# App Variants: Feature branch builds (and more) for your statically-generated SPA
 
-The split between frontend and backend has been a double-edge sword ever since
-the first developer chiseled JSX onto the wall of the tribal networking cave.
-What had the curiosity of this ancient heretic wrought? Along with the numerous
-advantages of client-rendered websites came numerous new challenges. We started
-specializing to overcome these new challenges and explore this new way of
-building for the web. Today, it is fairly typical for teams to be comprised not
-of full stack developers, but of frontend developers and backend developers.
+The split between front-end and back-end has been a double-edged sword ever
+since the first developer chiseled JSX onto the wall of the tribal networking
+cave. What had the curiosity of this ancient heretic wrought? Along with the
+numerous advantages of client-rendered websites came numerous new challenges. We
+started specializing to overcome these new challenges and explore this new way
+of building for the web. Today, it is fairly typical for teams to be comprised
+not of full stack developers, but of front-end developers and back-end
+developers.
 
 For better and worse, this is the timeline we are in, and it would be futile to
 attempt to escape.
 
-One casualty of the frontend/backend divide is the dedicated feature branch
+![A monitor showing slight divergence from the one true timeline in the TV series Loki.](./img/variant-timeline.jpeg)
+
+One casualty of the front-end/back-end divide is the dedicated feature branch
 build. The place where your work-in-progress code can be deployed care-free as
 you build so that you and your teammates can see a fully-integrated version of
 your changes. But with teams, repositories, and deployments split along
-technological lines, it can be difficult and time consuming to find a way to
-make feature branch builds work. And what if you serve your static frontend
-assets via a single Azure or AWS storage container? Just a dumb file server.
+technological lines, it can be difficult and time-consuming to find a way to
+make feature branch builds work. And what if you serve your static front-end
+assets via a simple, static file server?
 
-At the possible expense of becoming another frontend heretic, I'll tell you that
-you can trade _one more round trip to the server_ for completely isolated
-frontend builds.
+At the possible expense of becoming another front-end heretic, I'll tell you
+that you can trade one more round trip to the server for completely isolated
+front-end builds that are dynamically loaded without the need for special
+back-end logic.
 
 ## Variants
 
-Trying to achieve isolated feature branch builds solely through static, frontend
-code led me to something even more versatile. This slight architectural change
-allows you to deploy multiple builds of your application to a single
+Trying to achieve isolated feature branch builds solely through static,
+front-end code led me to something even more versatile. This slight
+architectural change allows you to deploy multiple builds of your application to
+a single
 [authority (sub-domain + domain + port)](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_URL#authority),
 with each build separated and loaded dynamically via a simple query parameter in
 the URL.
@@ -52,18 +57,15 @@ All of these and more can coexist together on your file server, perfectly
 separated and preserved. Since this system is more than just "versions" or
 "feature branches", we've settled on a new name: Variants.
 
-![](./variant-timeline.jpeg)
-
 ## The architectural shift
 
-> This entire article assumes you are working with a statically-generated,
-> SPA-like application. If you have more control over the server hosting your
-> static front end assets, perhaps another solution is possible, though this one
-> might still be better suited to your needs.
->
-> Additionally, if your deployment pipeline does not allow you to retain
-> previous build artifacts in production, you won't be able to use this
-> approach.
+This entire article assumes you are working with a statically-generated,
+SPA-like application. If you have more control over the server hosting your
+static front end assets, perhaps another solution is possible, though this one
+might still be better suited to your needs.
+
+Additionally, if your deployment pipeline does not allow you to retain previous
+build artifacts in production, you won't be able to use this approach.
 
 ### Typical static application loading
 
@@ -76,18 +78,18 @@ assets every time. Once the site renders, perhaps your application recognizes
 other assets that are required for your particular location and downloads those
 as well, but by then your app is already running.
 
-The contents of your index file do not change based on anything except a new
-build of your site, and every change to your application (ignoring
-code-splitting) requires a brand new build of multiple files and also
-`index.html`.
+Every change to your application requires a brand new build of `index.html` to
+reference multiple new CSS and JS files.
 
-![https://play.d2lang.com/?script=rJKxTvMwEMd3P8W9wJeq3-gBiTJRdagwbEjI2EewlNjmzi1UKO-OHBOnIIEyMMW6-90v-edcf58EyunF7Sk6oztQ-0vYBW2db0HhywG9QQnvAkAljLAuZ4AxpwT-RB6s0y3pfuw9UnhlJAmbcigDSMdcU-PznIN_F7W7OmNzvaqct_jWPKe--z5akb0mRtDegnVswhHp3luM6C16c4K7mx0LgEFMWf7_ZRYTvDkQoU9A2cOJV4Qcg2fk6UVV16Q5dJMkXCk1fd_sL1CdKNST65B_l22XuLaLVNe9bnGBrXCzcPhxSZsQEugYO2d0vn9fNrLOaNmNGMRHAAAA__8%3D&sketch=0&theme=104](./typical.png)
+![Sequence diagram of a typical SPA page load https://play.d2lang.com/?script=rJKxTvMwEMd3P8W9wJeq3-gBiTJRdagwbEjI2EewlNjmzi1UKO-OHBOnIIEyMMW6-90v-edcf58EyunF7Sk6oztQ-0vYBW2db0HhywG9QQnvAkAljLAuZ4AxpwT-RB6s0y3pfuw9UnhlJAmbcigDSMdcU-PznIN_F7W7OmNzvaqct_jWPKe--z5akb0mRtDegnVswhHp3luM6C16c4K7mx0LgEFMWf7_ZRYTvDkQoU9A2cOJV4Qcg2fk6UVV16Q5dJMkXCk1fd_sL1CdKNST65B_l22XuLaLVNe9bnGBrXCzcPhxSZsQEugYO2d0vn9fNrLOaNmNGMRHAAAA__8%3D&sketch=0&theme=104](./img/typical.png)
+
+> CAPTION: (Diagrams created at https://play.d2lang.com)
 
 ### Variant loading
 
-But what if the `index.html` file didn't contain _any_ of the assets that needed
-to load to run your application? What if it loaded your application dynamically,
-based on the variant of the application you wanted?
+But what if the `index.html` file didn't contain references to any of the assets
+needed to run your application? What if it loaded your application assets
+dynamically, based on the variant of the application you request?
 
 ```yaml
 # Loads the default variant
@@ -97,21 +99,28 @@ https://example.com
 https://example.com?variant=my_new_feature
 ```
 
-At the cost of one more round trip to the server, we can encapsulate all our
-asset dependencies into a single JSON file, and give that file a name. Since we
-are now pushing the knowledge of our assets into a file that does not get loaded
-directly, we have the opportunity to run a tiny bit of JS in the browser before
-loading any application assets. That tiny bit of JS can either load the default
-variant of our application, or it can load any arbitrary variant we call by name
-in the url.
+Instead of baking our application's static dependencies into the `index.html`
+file, we can encapsulate the knowledge of those assets into a single JSON file,
+and give that file an arbitrary (variant) name. Since we are now pushing the
+knowledge of our assets into a file that must be loaded separately from the
+index file, we have the opportunity to run a tiny bit of JavaScript in the
+browser _before loading any application assets_. That tiny bit of JavaScript can
+either load the default variant JSON of our application, or it can load any
+arbitrary variant JSON file we request by name via a query parameter. Once that
+JSON file is loaded, we can use it to gather our actual application
+dependencies.
 
-![https://play.d2lang.com/?script=rJPBTsMwDIbvfQo_wOg0jj0gMU5UE0xEcJqETGNGUOcEJx0gtHdHadZuYwz1wKlR8vnLH1vt21eAxNdnDygGOYCaX8LMoja8BEVvDXFFBXxlACqQg0laA7TvLMBvkUdtcCm4as-exL57kgKmaZEKSNZxT7XffQ7OLvrT8R4b93uVYU0f-UtY1S2BWpMGsQ1rCGJcF-tA2hfPUTyNQBqGNbKpa4RSjQBZL1gbX9l423rbgVLd3sD93ezY14U8Qf6Sekvmr95yS21-PvwwY4wEXaIFa3LEmrj6jNf4LNZ3kzj_z0lUlqtGhDiARI8PfizknWVP_qi3edh1Iw8FXCnV5dv5E9RXJOrZ1OT_lpVDXOUg1fUKlzTAlrid8PSQptYGQOdqU2H8ew4mMolomk22yb4DAAD__w%3D%3D&sketch=0&theme=104](./variant.png)
+![Sequence diagram of modified "variant" SPA architecture page load https://play.d2lang.com/?script=rJPBTsMwDIbvfQo_wOg0jj0gMU5UE0xEcJqETGNGUOcEJx0gtHdHadZuYwz1wKlR8vnLH1vt21eAxNdnDygGOYCaX8LMoja8BEVvDXFFBXxlACqQg0laA7TvLMBvkUdtcCm4as-exL57kgKmaZEKSNZxT7XffQ7OLvrT8R4b93uVYU0f-UtY1S2BWpMGsQ1rCGJcF-tA2hfPUTyNQBqGNbKpa4RSjQBZL1gbX9l423rbgVLd3sD93ezY14U8Qf6Sekvmr95yS21-PvwwY4wEXaIFa3LEmrj6jNf4LNZ3kzj_z0lUlqtGhDiARI8PfizknWVP_qi3edh1Iw8FXCnV5dv5E9RXJOrZ1OT_lpVDXOUg1fUKlzTAlrid8PSQptYGQOdqU2H8ew4mMolomk22yb4DAAD__w%3D%3D&sketch=0&theme=104](./img/variant.png)
 
-If your files are all properly fingerprinted—the name of the file contains a
-hash that forces it to be unique based on its exact contents—then you can keep
-all your old assets on your server and let your named JSON files load whichever
-files are needed. So if you need to preserve old builds of your application for
-any reason at all, you can do so easily.
+> CAPTION: The only change from the "typical SPA loading sequence" is the added
+> round trip in step 1.
+
+If your files are all properly fingerprinted - the name of the file contains a
+hash that forces it to be unique based on its exact contents - then you can keep
+all your old assets on your server and let your variant JSON files load
+whichever assets are required. Since every single build of your app can live
+side by side with each other, you can load whichever variant you want as long as
+you know the name of a JSON file that points to the proper dependencies.
 
 ### Trade-offs
 
@@ -125,21 +134,23 @@ There are some downsides to this approach.
 - Typical turn-key static site hosts (Netlify, etc) will prune your old build
   files each time you deploy, and that is completely antithetical to this
   approach.
-- ~The different variants of your app may start battling each other for
-  multiversal dominance.~
+- The different variants of your app may start battling each other for
+  multiversal dominance.
 
 If you find yourself in a situation where you can accept the tradeoffs above,
 there are plenty of situations where loading _any_ variant of your app via the
-same exact `index.html` at the same location can be immensely useful.
+same exact `index.html` at the same location can be immensely useful. Using
+variant deployment, you can
 
-- You need to make a feature available to a select few people for testing.
-- You've shipped a bug and want to quickly revert to a previous build.
-- You don't want to solve CORS again for feature branch builds.
-- You want to load debugging tools directly into your bundle or load the
-  non-production build against the production environment to track down a
-  problem.
-- You want to make snapshots of your application available in perpetuity for
-  compatibility reasons.
+- eature available to a select few people for testing
+- quickly revert to a previous build if you discover a bug
+- solve CORS problems exactly one time; not for production _and_ feature
+  branches
+- load debugging tools directly into your bundle or load the non-production
+  build against the production environment to track down a problem
+- make snapshots of your application available in perpetuity for compatibility
+  reasons
+- serve a _completely different_ application for each variant
 
 ## Our variant system at Trilliant Health
 
@@ -188,26 +199,25 @@ without the need for them know the intimate details of how our variant system
 behaves. So Local Storage is out. But Local Storage has a sibling called Session
 Storage with the same API that basically solves all the problems above. Session
 Storage behaves exactly like Local Storage except it is handled on a per-window
-(and per-tab) basis. When your tab is closed, all the Session Storage _for that
-tab_ is cleared.
+(and per-tab) basis. When your tab is closed, all the Session Storage for that
+tab is cleared.
 
 So on page load, we store the variant in Session Storage, drop the query param,
-load the app, and let the entire application be blissfully unaware of the entire
-variant system.
+load the app, and let the entire application remain blissfully unaware of the
+entire variant system.
 
 ### Variant-level config
 
-In order to take full advantage of the variant system—with builds that are
-always current but have useful variations in behavior—we will probably want to
+In order to take full advantage of the variant system - with builds that are
+always current but have useful variations in behavior - we will probably want to
 store some configuration information inside the variants themselves. For
-example, if you are working on a variant for a feature branch that talks to a
-development server instead of the production server, you probably don't want to
-have to inspect what variant you are using within the application itself.
+example, the actual URL for your API server should probably be configured
+instead of discovered at runtime.
 
 Since our Webpack config will already need to be generally aware of variants, we
 also house some other values inside a variant config that we can replace using
-the `WebpackDefinePlugin`. So in our applications, calls to our server resemble
-this:
+the `WebpackDefinePlugin`. So in our applications, calls to our API server
+resemble this:
 
 ```ts
 fetch(`${API_BASE_URL}/some-endpoint`)
@@ -216,15 +226,10 @@ fetch(`${API_BASE_URL}/some-endpoint`)
 And we let Webpack do the work of replacing `API_BASE_URL` with
 `"https://api.example.com"` or `"https://dev-api.example.com"` or whatever other
 URL makes sense for the given variant. We don't need to maintain some kind of
-cross-reference for which variants talk to which server. It all goes into the
-variant config itself and is sussed out at build time.
+runtime cross-reference for which variants talk to which server. It all goes
+into the variant config itself and is sussed out at build time.
 
 ## "Give me the code"
-
-Everything below is just a single implementation of the ideas above. It isn't
-_quite_ what we use, since the exact solution we use is more complex than makes
-sense for this article. Take the ideas above or the code below run with it. Let
-me know what changes you've made and how it works for you.
 
 Not everything you need will be included below, because this is some deeply
 custom code. But you should be able to merge these examples with your code and
@@ -236,7 +241,7 @@ step in deployment is to upload all our files to ABS. Since our asset filenames
 contain a unique hash, we just let it upload and overwrite files with
 conflicting names. The end result is that our _new_ assets get uploaded with no
 conflict, _old_ assets are rewritten with the same content, and
-`{variantName}.json` file gets updated to point to the new build assets.
+`{variantName}.json` files get updated to point to new build assets.
 
 ### index.html
 
@@ -267,14 +272,15 @@ variants
 └── public.json
 ```
 
-But how do we build those files?
+But how do we build those files? This is where we need to customize our Webpack
+configuration.
 
 ### webpack.config.ts
 
-The code below will not work in your project unless you add the proper loader
-rules to your Webpack config. Additionally, you may not have things set up to
-use TypeScript in your Webpack config, but the TypeScript in this code example
-is fairly limited and easily removed.
+The code below will not work in your project unless you add loader rules to your
+Webpack config. Additionally, you may not have things set up to use TypeScript
+in your Webpack config, but the TypeScript in this code example is fairly
+limited and easily removed.
 
 ```ts
 INCLUDE WEBPACK.CONFIG.TS HERE
@@ -287,10 +293,10 @@ server or build via the following command.
 
 ```bash
 # compile and start the dev server for the my_new_feature variant
-webpack serve -- --env variantName=my_new_feature
+webpack serve --env variantName=my_new_feature
 
 # build the public variant
-webpack -- --env variantName=public
+webpack --env variantName=public
 ```
 
 When you build, you'll get something approximating the following folder output.
@@ -319,7 +325,7 @@ variant.
 If we were to build the "mock" variant, the resulting build is similar.
 
 ```bash
-webpack -- --env variantName=mock
+webpack --env variantName=mock
 ```
 
 ```
@@ -338,10 +344,10 @@ build
     └── mock.json
 ```
 
-You'll see that the CSS and images are the same, but the JS is different and we
-have a different variant JSON file named `mock.json`. If you upload these files
-to your server along side your previous uploaded files, you'll get the
-following.
+You'll see that the CSS and images are the same, but the JavaScript files are
+different and we have a different variant JSON file named `mock.json`. If you
+upload these files to your server along side your previous uploaded files,
+you'll get something like the following.
 
 ```
 (server)
@@ -368,9 +374,9 @@ up the `mock` variant using `main.486ca[...].js`.
 
 ## Diverging even farther
 
-![](./farther.jpeg)
+![A monitor showing a highly divergent timeline from the TV series Loki](./img/farther.jpeg)
 
-I mentioned a few times above that the code here is _similar_ to what we use at
+I mentioned a few times above that the code here is similar to what we use at
 Trilliant Health. There are tons of little features we've layered on top of our
 variant system. We've layered in a CLI that builds and deploys multiple variants
 at once, so that you can have several variants all based on the latest changes
@@ -378,19 +384,26 @@ in your main branch. We've added a way to cut and freeze versions of our
 application to allow internal users to work with older versions of a tool that
 depends highly on a rapidly changing data structure. We've deployed variants
 that allowed our marketing department personnel to capture images of
-[our Similarity Index™ tools](https://datalab.trillianthealth.com) unincumbered
+[our Similarity Index™ tools](https://datalab.trillianthealth.com) unencumbered
 by explanatory text. We've added descriptions to the internal variants and UI
 elements in the actual app that can read and understand which variants are
 available to give users a way to switch as needed.
 
-> Had I just finished watching Marvel's _Loki_ series when I created this
-> system? Maybe. Does our internal UI lean into that origin? Maybe.
->
-> ![](./our-ui.png)
->
-> Icon courtesy [Slackmojis.com](https://slackmojis.com).
+![A screenshot of a small section of Trilliant Health's custom UI for describing app variants, including a cartoonish icon of Loki's head](./img/our-ui.png)
+
+> CAPTION: Had I just finished watching Marvel's Loki series when I created this
+> system? Maybe. Does our internal UI lean into that origin? Maybe. Icon
+> available at [Slackmojis.com](https://slackmojis.com).
 
 The possibilities are vast and the latitude you can gain from using a system
-like this is very freeing. You know what else is freeing? _Not_ doing automatic
-deployments based on when your branches merge to main. 😱 But that is a
-heretical rant for another time.
+like this is very freeing. (You know what else is freeing? _Not_ doing automatic
+deployments when your PRs get merged to main. 😱 But that is a heretical rant
+for another time.)
+
+Everything in the code above is just a single implementation of the idea of app
+variants. And "app variants" is just a name I slapped on "moving your app
+dependency references out of `index.html` so they can be loaded later." Have you
+ever seen anyone else use this technique before? I'd love to know.
+
+In any case, if these ideas are useful to you, please run with them! Let me know
+what works for you and what you needed to change.

@@ -164,6 +164,7 @@ export default async (webpackEnv: WebpackEnv) => {
           "css": <%= JSON.stringify(assets.css) %>,
           "scripts": <%= JSON.stringify(assets.js) %>,
         }`,
+
         // When running locally for development, we just use the default
         // variant name as the name of the JSON file. The specified
         // variant's settings will still be loaded, but you won't have
