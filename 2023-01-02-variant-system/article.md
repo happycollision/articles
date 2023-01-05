@@ -3,21 +3,20 @@
 The split between front-end and back-end has been a double-edged sword ever
 since the first developer chiseled JSX onto the wall of the tribal networking
 cave. What had the curiosity of this ancient heretic wrought? Along with the
-numerous advantages of client-rendered websites came numerous new challenges. We
-started specializing to overcome these new challenges and explore this new way
-of building for the web. Today, it is typical for teams to be comprised
-not of full stack developers, but of front-end developers and back-end
-developers.
+numerous advantages of client-rendered websites came numerous new challenges.
+Web developers started specializing to overcome these new challenges and explore
+this new way of building for the web. Today, common practice is to develop using
+separate teams of front-end developers and back-end developers as opposed to
+full stack developers.
 
-For better and worse, this is the timeline we are in, and it would be futile to
-attempt to escape.
+For better and worse, this is the timeline we are in, and escape is futile.
 
 ![A monitor showing slight divergence from the one true timeline in the TV series Loki.](./img/variant-timeline.jpeg)
 
 One casualty of the front-end/back-end divide is the dedicated feature branch
-build. The place where your work-in-progress code can be deployed care-free as
+build, the place where your work-in-progress code can be deployed care-free as
 you build so that you and your teammates can see a fully integrated version of
-your changes. But with teams, repositories, and deployments split along
+your changes. Today, with teams, repositories, and deployments split along
 technological lines, it can be difficult and time-consuming to find a way to
 make feature branch builds work. And what if you serve your static front-end
 assets via a simple, static file server?
@@ -37,7 +36,7 @@ a single
 with each build separated and loaded dynamically via a simple query parameter in
 the URL.
 
-The system allows you to dynamically load
+The system allows you to dynamically load:
 
 - **Feature branch builds:** Our original goal. Deploy work-in-progress builds
   of your app as you develop a new feature.
@@ -55,7 +54,7 @@ The system allows you to dynamically load
 
 All of these and more can coexist together on your file server, perfectly
 separated and preserved. Since this system is more than just "versions" or
-"feature branches", we've settled on a new name: Variants.
+"feature branches," we've settled on a new name: Variants.
 
 ## The architectural shift
 
@@ -119,8 +118,8 @@ If your files are all properly fingerprinted --the name of the file contains a
 hash that forces it to be unique based on its exact contents --then you can keep
 all your old assets on your server and let your variant JSON files load
 whichever assets are required. Since every single build of your app can live
-side by side with each other, you can load whichever variant you want if
-you know the name of a JSON file that points to the proper dependencies.
+side by side with each other, you can load whichever variant you want if you
+know the name of a JSON file that points to the proper dependencies.
 
 ### Trade-offs
 
@@ -138,26 +137,26 @@ There are some downsides to this approach.
   multiversal dominance.
 
 If you find yourself in a situation where you can accept the tradeoffs above,
-there are plenty of situations where loading _any_ variant of your app via the
-same exact `index.html` at the same location can be immensely useful. Using
+there are plenty of situations in which loading _any_ variant of your app via
+the same exact `index.html` at the same location can be immensely useful. Using
 variant deployment, you can
 
-- make a feature available to a select few people for testing
-- quickly revert to a previous build if you discover a bug
-- solve CORS problems exactly one time: not for production _and_ feature
-  branches
-- load debugging tools directly into your bundle or load the non-production
-  build against the production environment to track down a problem
-- make snapshots of your application available in perpetuity for compatibility
-  reasons
-- serve a _completely different_ application for each variant
+- Make a feature available to a select few people for testing;
+- Revert to a previous build quickly if you discover a bug;
+- Solve CORS problems exactly one time: not for production _and_ feature
+  branches;
+- Load debugging tools directly into your bundle or load the non-production
+  build against the production environment to track down a problem;
+- Make snapshots of your application available in perpetuity for compatibility
+  reasons;
+- Serve a _completely different_ application for each variant.
 
 ## Our variant system at Trilliant Health
 
 There are any number of ways you can build your application to use variants, but
 I'll walk you through some of the concrete decisions we've made so you can get
 an idea of how you might want to do this yourself. Before we dig into some real
-code, let's go over a few other ideas to layer on top of our current
+code, let's consider a few other ideas to layer on top of our current
 understanding of the variant system.
 
 ### Problems with query parameters
@@ -204,7 +203,7 @@ Storage behaves exactly like Local Storage except it is handled on a per-tab
 basis. When your tab is closed, all the Session Storage _for that tab_ is
 cleared.
 
-So on page load, we store the variant in Session Storage, drop the query
+So, on page load, we store the variant in Session Storage, drop the query
 parameter, load the app, and let the entire application remain blissfully
 unaware of the entire variant system.
 
@@ -229,7 +228,7 @@ And we let Webpack do the work of replacing `API_BASE_URL` with
 `"https://api.example.com"` or `"https://dev-api.example.com"` or whatever other
 URL makes sense for the given variant. We don't need to maintain some kind of
 runtime cross-reference for which variants talk to which server. It all goes
-into the variant config itself and is sussed out at build time.
+into the variant config itself and is resolved at build time.
 
 ## "Give me the code"
 
@@ -259,7 +258,7 @@ The comments in the code should mostly speak for themselves.
 You'll note that we decided to inform the user of the missing variant in case it
 is unavailable, instead of just reloading on their behalf. Depending on the
 kinds of differences between variants, just loading the default variant might be
-too subtle for the user to realize something didn't work. So we display a very
+too subtle for the user to realize something didn't work. So, we display a very
 simple message.
 
 ![](missing.png)
@@ -281,8 +280,8 @@ configuration.
 
 The code below will not work in your project unless you add loader rules to your
 Webpack config. Additionally, you may not have things set up to use TypeScript
-in your Webpack config, but the TypeScript in this code example is
-limited and easily removed.
+in your Webpack config, but the TypeScript in this code example is limited and
+easily removed.
 
 ```ts
 INCLUDE WEBPACK.CONFIG.TS HERE
@@ -348,8 +347,8 @@ build
 
 You'll see that the CSS and images are the same, but the JavaScript files are
 different and we have a different variant JSON file named `mock.json`. If you
-upload these files to your server alongside your previous uploaded files,
-you'll get something like the following.
+upload these files to your server alongside your previous uploaded files, you'll
+get something like the following.
 
 ```
 (server)
